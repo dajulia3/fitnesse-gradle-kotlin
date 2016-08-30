@@ -1,8 +1,6 @@
 package com.djulia.transactions;
 
-import com.fasterxml.jackson.module.kotlin.KotlinModule;
 import org.junit.Test;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
@@ -10,7 +8,8 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.math.BigDecimal;
 
-import static com.djulia.transactions.TransactionsController.*;
+import static com.djulia.transactions.TransactionsController.ErrorResponse;
+import static com.djulia.transactions.TransactionsController.WithdrawalResponse;
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
@@ -27,7 +26,7 @@ public class TransactionsControllerTest {
     @Test
     public void makeWithdrawal() throws Exception {
         when(transactionService.withdraw(any(), any())).thenReturn(
-                WithdrawalResult.success(new Account("12345ABC", new BigDecimal(200), Account.Status.OPEN))
+                WithdrawalResult.Companion.success(new Account("12345ABC", new BigDecimal(200), Account.Status.OPEN))
         );
 
         ;
@@ -44,7 +43,7 @@ public class TransactionsControllerTest {
     @Test
     public void makeWithdrawal_errors_whenAccountIsInactive() throws Exception {
         when(transactionService.withdraw(any(), any())).thenReturn(
-                WithdrawalResult.error(new WithdrawalResult.InactiveAccountError())
+                WithdrawalResult.Companion.error(new WithdrawalResult.Error.InactiveAccountError())
         );
 
         String content = JsonHelpers.INSTANCE.serializeContentForMvcTest(
@@ -59,7 +58,7 @@ public class TransactionsControllerTest {
     @Test
     public void makeWithdrawal_errors_whenAccountHasInsufficientFunds() throws Exception {
         when(transactionService.withdraw(any(), any())).thenReturn(
-                WithdrawalResult.error(new WithdrawalResult.InsufficientFundsError(new BigDecimal(55)))
+                WithdrawalResult.Companion.error(new WithdrawalResult.Error.InsufficientFundsError(new BigDecimal(55)))
         );
 
         String content = JsonHelpers.INSTANCE.serializeContentForMvcTest(
@@ -74,7 +73,7 @@ public class TransactionsControllerTest {
     @Test
     public void makeWithdrawal_errors_whenAccountHasInvalideWithdrawalAmountException() throws Exception {
         when(transactionService.withdraw(any(), any())).thenReturn(
-                WithdrawalResult.error(new WithdrawalResult.InvalidWithdrawalAmountError())
+                WithdrawalResult.Companion.error(new WithdrawalResult.Error.InvalidWithdrawalAmountError())
         );
 
         String content = JsonHelpers.INSTANCE.serializeContentForMvcTest(
@@ -92,7 +91,7 @@ public class TransactionsControllerTest {
     @Test
     public void makeWithdrawal_errors_whenNoSuchAccountFound() throws Exception {
         when(transactionService.withdraw(any(), any())).thenReturn(
-                WithdrawalResult.error(new WithdrawalResult.NoSuchAccountError())
+                WithdrawalResult.Companion.error(new WithdrawalResult.Error.NoSuchAccountError())
         );
 
         String content = JsonHelpers.INSTANCE.serializeContentForMvcTest(

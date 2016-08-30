@@ -27,37 +27,37 @@ public class InMemoryOnlyBankingTransactionServiceTest {
     public void withdrawReturnsNewAccountWithLowerBalance_whenWithdrawalUnderCurrentBalance() throws Exception {
         WithdrawalResult result = bankingTransactionService.withdraw(accountNumberWith1500Balance, new BigDecimal(100));
 
-        assertThat(result.getUpdatedAccount().get().getBalance()).isEqualTo(new BigDecimal(1400));
+        assertThat(result.getUpdatedAccount().getBalance()).isEqualTo(new BigDecimal(1400));
     }
 
     @Test
     public void withdrawThrowsError_whenAccountDoesNotExist() throws Exception {
         WithdrawalResult result = bankingTransactionService.withdraw("not-a-real-account-number", new BigDecimal(100));
-        assertThat(result).isEqualTo(WithdrawalResult.error(new WithdrawalResult.NoSuchAccountError()));
+        assertThat(result).isEqualTo(WithdrawalResult.Companion.error(new WithdrawalResult.Error.NoSuchAccountError()));
     }
 
     @Test
     public void withdrawingZeroDollarsOrLess_returnsAnError() throws Exception {
         WithdrawalResult withdrawZeroResult = bankingTransactionService.withdraw(accountNumberWith1500Balance, new BigDecimal(0));
-        assertThat(withdrawZeroResult).isEqualTo(WithdrawalResult.error(new WithdrawalResult.InvalidWithdrawalAmountError()));
+        assertThat(withdrawZeroResult).isEqualTo(WithdrawalResult.Companion.error(new WithdrawalResult.Error.InvalidWithdrawalAmountError()));
 
         WithdrawalResult negativeWithdrawalResult = bankingTransactionService.withdraw(accountNumberWith1500Balance, new BigDecimal(-1));
-        assertThat(negativeWithdrawalResult).isEqualTo(WithdrawalResult.error(new WithdrawalResult.InvalidWithdrawalAmountError()));
+        assertThat(negativeWithdrawalResult).isEqualTo(WithdrawalResult.Companion.error(new WithdrawalResult.Error.InvalidWithdrawalAmountError()));
     }
 
     @Test
     public void withdrawingMoreThanAccountBalance_returnsAnError() throws Exception {
         WithdrawalResult result = bankingTransactionService.withdraw(accountNumberWith1500Balance, new BigDecimal(1501));
-        assertThat(result).isEqualTo(WithdrawalResult.error(new WithdrawalResult.InsufficientFundsError(new BigDecimal(1))));
+        assertThat(result).isEqualTo(WithdrawalResult.Companion.error(new WithdrawalResult.Error.InsufficientFundsError(new BigDecimal(1))));
     }
 
     @Test
     public void withdrawingFromANonOpenAccount_returnsAnError() {
         WithdrawalResult closedAccountResult = bankingTransactionService.withdraw(closedAccountNumber, new BigDecimal(20));
-        assertThat(closedAccountResult).isEqualTo(WithdrawalResult.error(new WithdrawalResult.InactiveAccountError()));
+        assertThat(closedAccountResult).isEqualTo(WithdrawalResult.Companion.error(new WithdrawalResult.Error.InactiveAccountError()));
 
         WithdrawalResult frozenAccountResult = bankingTransactionService.withdraw(frozenAccountNumber, new BigDecimal(20));
-        assertThat(frozenAccountResult).isEqualTo(WithdrawalResult.error(new WithdrawalResult.InactiveAccountError()));
+        assertThat(frozenAccountResult).isEqualTo(WithdrawalResult.Companion.error(new WithdrawalResult.Error.InactiveAccountError()));
     }
 
 }

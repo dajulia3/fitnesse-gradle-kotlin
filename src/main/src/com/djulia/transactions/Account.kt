@@ -2,7 +2,7 @@ package com.djulia.transactions
 
 import java.math.BigDecimal
 
-internal data class Account(val accountNumber: String, val balance: BigDecimal, val status: Account.Status) {
+data class Account(val accountNumber: String, val balance: BigDecimal, val status: Account.Status) {
     fun accountDebitedBy(amountToDebit: BigDecimal): Account {
         return Account(accountNumber, balance.subtract(amountToDebit), status)
     }

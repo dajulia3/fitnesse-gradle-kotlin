@@ -25,23 +25,21 @@ constructor(transactionService: BankingTransactionService) {
     fun makeWithdrawal(@RequestBody request: WithdrawalRequest): ResponseEntity<*> {
         val result = transactionService.withdraw(request.accountNumber, request.amount)
 
-        val errorResponse = result.match(
-                { successfullyUpdatedAccount ->
-                    val body = WithdrawalResponse(successfullyUpdatedAccount.balance)
-                    ResponseEntity.status(201).body(body)
-                },
-                { inactive -> ResponseEntity.status(400).body(TransactionsController.ErrorResponse("Inactive Account. Can't withdraw")) },
-                { invalid -> ResponseEntity.status(400).body(TransactionsController.ErrorResponse("Invalid withdrawal")) },
-                { insufficient ->
-                    ResponseEntity.status(400).body(TransactionsController.ErrorResponse(
-                            "Insufficient funds. Need $" + insufficient.differenceInFunds + " to complete transaction."))
-                }
-        ) { noSuchAccount -> ResponseEntity.status(400).body(TransactionsController.ErrorResponse("No account found with the id " + request.accountNumber)) }
+        return when(result.maybeError){
+            is WithdrawalResult.Error.InactiveAccountError -> ResponseEntity.status(400).body(TransactionsController.ErrorResponse("Inactive Account. Can't withdraw"))
+            is WithdrawalResult.Error.InvalidWithdrawalAmountError -> ResponseEntity.status(400).body(TransactionsController.ErrorResponse("Invalid withdrawal"))
+            is WithdrawalResult.Error.InvalidWithdrawalAmountError -> ResponseEntity.status(400).body(TransactionsController.ErrorResponse("Invalid withdrawal"))
+            is WithdrawalResult.Error.InsufficientFundsError -> ResponseEntity.status(400).body(TransactionsController.ErrorResponse(
+                                                "Insufficient funds. Need $" + result.maybeError.differenceInFunds + " to complete transaction."))
 
-        return errorResponse
-        //DEFINITELY caught them all, as long as match is kept up to date (more likely since all changes to error types
-        // are local to that file)!!!
-        //much better, but does it buy us anything more??
+            is WithdrawalResult.Error.NoSuchAccountError -> ResponseEntity.status(400).body(TransactionsController.ErrorResponse("No account found with the id " + request.accountNumber))
+            null -> {
+                val body = WithdrawalResponse(result.updatedAccount?.balance)
+                ResponseEntity.status(201).body(body)
+            }
+        }
+        //DEFINITELY caught them all, and had to be exhaustive!!!
+        // BLISS!!!
     }
 
 
