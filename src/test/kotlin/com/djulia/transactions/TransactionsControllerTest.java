@@ -1,6 +1,8 @@
 package com.djulia.transactions;
 
+import com.fasterxml.jackson.module.kotlin.KotlinModule;
 import org.junit.Test;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
@@ -29,7 +31,7 @@ public class TransactionsControllerTest {
         );
 
         ;
-        String content = JsonHelpers.serializeContentForMvcTest(
+        String content = JsonHelpers.INSTANCE.serializeContentForMvcTest(
                 new WithdrawalRequest("12345ABC", new BigDecimal(500))
         );
         mockMvc.perform(MockMvcRequestBuilders.post("/accounts/withdrawals").content(
@@ -45,7 +47,7 @@ public class TransactionsControllerTest {
                 WithdrawalResult.error(new WithdrawalResult.InactiveAccountError())
         );
 
-        String content = JsonHelpers.serializeContentForMvcTest(
+        String content = JsonHelpers.INSTANCE.serializeContentForMvcTest(
                 new WithdrawalRequest("12345ABC", new BigDecimal(500))
         );
         mockMvc.perform(MockMvcRequestBuilders.post("/accounts/withdrawals").content(content))
@@ -60,7 +62,7 @@ public class TransactionsControllerTest {
                 WithdrawalResult.error(new WithdrawalResult.InsufficientFundsError(new BigDecimal(55)))
         );
 
-        String content = JsonHelpers.serializeContentForMvcTest(
+        String content = JsonHelpers.INSTANCE.serializeContentForMvcTest(
                 new WithdrawalRequest("12345ABC", new BigDecimal(500))
         );
         mockMvc.perform(MockMvcRequestBuilders.post("/accounts/withdrawals").content(content))
@@ -75,7 +77,7 @@ public class TransactionsControllerTest {
                 WithdrawalResult.error(new WithdrawalResult.InvalidWithdrawalAmountError())
         );
 
-        String content = JsonHelpers.serializeContentForMvcTest(
+        String content = JsonHelpers.INSTANCE.serializeContentForMvcTest(
                 new WithdrawalRequest("12345ABC", new BigDecimal(500))
         );
         mockMvc.perform(MockMvcRequestBuilders.post("/accounts/withdrawals").content(content))
@@ -93,7 +95,7 @@ public class TransactionsControllerTest {
                 WithdrawalResult.error(new WithdrawalResult.NoSuchAccountError())
         );
 
-        String content = JsonHelpers.serializeContentForMvcTest(
+        String content = JsonHelpers.INSTANCE.serializeContentForMvcTest(
                 new WithdrawalRequest("12345ABC", new BigDecimal(500))
         );
         mockMvc.perform(MockMvcRequestBuilders.post("/accounts/withdrawals").content(content))
