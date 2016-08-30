@@ -23,9 +23,24 @@ public class TransactionsController {
 
     @RequestMapping(value = "/accounts/withdrawals")
     public ResponseEntity<?> makeWithdrawal(@RequestBody WithdrawalRequest request ) {
+        try {
             Account accountAfterWithdrawal = transactionService.withdraw(request.getAccountNumber(), request.getAmount());
             WithdrawalResponse body = new WithdrawalResponse(accountAfterWithdrawal.getBalance());
             return ResponseEntity.status(201).body(body);
+        }
+        //I had to KNOW to catch these exceptions!
+        catch (InMemoryOnlyBankingTransactionService.InactiveAccountException e){
+            return ResponseEntity.status(400).body(new TransactionsController.ErrorResponse("Inactive Account. Can't withdraw"));
+        }
+        catch (InMemoryOnlyBankingTransactionService.InvalidWithdrawalAmountException e){
+            return ResponseEntity.status(400).body(new TransactionsController.ErrorResponse("Invalid withdrawal"));
+        }
+            catch (InMemoryOnlyBankingTransactionService.InsufficientFundsException e){
+            return ResponseEntity.status(400).body(new TransactionsController.ErrorResponse("Insufficient funds"));
+        }
+        //Did I catch them all? I can't be sure without looking at the implementation of the Concrete class.
+        //Talk about a leaky abstraction!
+        //And these are known, reasonable cases!!!
     }
 
 
@@ -65,4 +80,38 @@ public class TransactionsController {
         }
     }
 
+    public static class ErrorResponse {
+        private final String errorMessage;
+        @JsonCreator
+        public ErrorResponse(@JsonProperty("errorMessage") String errorMessage) {
+            this.errorMessage = errorMessage;
+        }
+
+        public String getErrorMessage() {
+            return errorMessage;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            ErrorResponse that = (ErrorResponse) o;
+
+            return errorMessage != null ? errorMessage.equals(that.errorMessage) : that.errorMessage == null;
+
+        }
+
+        @Override
+        public String toString() {
+            return "ErrorResponse{" +
+                    "errorMessage='" + errorMessage + '\'' +
+                    '}';
+        }
+
+        @Override
+        public int hashCode() {
+            return errorMessage != null ? errorMessage.hashCode() : 0;
+        }
+    }
 }

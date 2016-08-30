@@ -41,4 +41,54 @@ public class TransactionsControllerTest {
         assertThat(resultCapturingMessageConverter.getResult()).isEqualTo(new WithdrawalResponse(new BigDecimal(200)));
     }
 
+    ///////////////////////////////////////////////////////////////////////////////////////////
+    ///////////// I had to KNOW to write these tests based on internals of the ////////////////
+    ///////////// InMemoryOnlyBankingTransactionService class!!                ////////////////
+    ///////////// YUCK!!!!!                                                    ////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////
+
+    @Test
+    public void makeWithdrawal_errors_whenAccountIsInactive() throws Exception {
+        when(transactionService.withdraw(any(), any())).thenThrow(
+                InMemoryOnlyBankingTransactionService.InactiveAccountException.class
+        );
+
+        String content = JsonHelpers.serializeContentForMvcTest(
+                new WithdrawalRequest("12345ABC", new BigDecimal(500))
+        );
+        mockMvc.perform(MockMvcRequestBuilders.post("/accounts/withdrawals").content(content))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest());
+
+        assertThat(resultCapturingMessageConverter.getResult()).isEqualTo(new ErrorResponse("Inactive Account. Can't withdraw"));
+    }
+
+    @Test
+    public void makeWithdrawal_errors_whenAccountHasInsufficientFunds() throws Exception {
+        when(transactionService.withdraw(any(), any())).thenThrow(
+                InMemoryOnlyBankingTransactionService.InsufficientFundsException.class
+        );
+
+        String content = JsonHelpers.serializeContentForMvcTest(
+                new WithdrawalRequest("12345ABC", new BigDecimal(500))
+        );
+        mockMvc.perform(MockMvcRequestBuilders.post("/accounts/withdrawals").content(content))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest());
+
+        assertThat(resultCapturingMessageConverter.getResult()).isEqualTo(new ErrorResponse("Insufficient funds"));
+    }
+
+    @Test
+    public void makeWithdrawal_errors_whenAccountHasInvalideWithdrawalAmountException() throws Exception {
+        when(transactionService.withdraw(any(), any())).thenThrow(
+                InMemoryOnlyBankingTransactionService.InvalidWithdrawalAmountException.class
+        );
+
+        String content = JsonHelpers.serializeContentForMvcTest(
+                new WithdrawalRequest("12345ABC", new BigDecimal(500))
+        );
+        mockMvc.perform(MockMvcRequestBuilders.post("/accounts/withdrawals").content(content))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest());
+
+        assertThat(resultCapturingMessageConverter.getResult()).isEqualTo(new ErrorResponse("Invalid withdrawal"));
+    }
 }
