@@ -1,8 +1,6 @@
 package com.djulia.transactions;
 
-import org.junit.Before;
 import org.junit.Test;
-import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
@@ -27,7 +25,7 @@ public class TransactionsControllerTest {
     @Test
     public void makeWithdrawal() throws Exception {
         when(transactionService.withdraw(any(), any())).thenReturn(
-                new Account("12345ABC", new BigDecimal(200), Account.Status.OPEN)
+                WithdrawalResult.success(new Account("12345ABC", new BigDecimal(200), Account.Status.OPEN))
         );
 
         ;
@@ -49,8 +47,8 @@ public class TransactionsControllerTest {
 
     @Test
     public void makeWithdrawal_errors_whenAccountIsInactive() throws Exception {
-        when(transactionService.withdraw(any(), any())).thenThrow(
-                InMemoryOnlyBankingTransactionService.InactiveAccountException.class
+        when(transactionService.withdraw(any(), any())).thenReturn(
+                WithdrawalResult.error(WithdrawalResult.Error.INACTIVE_ACCOUNT)
         );
 
         String content = JsonHelpers.serializeContentForMvcTest(
@@ -64,8 +62,8 @@ public class TransactionsControllerTest {
 
     @Test
     public void makeWithdrawal_errors_whenAccountHasInsufficientFunds() throws Exception {
-        when(transactionService.withdraw(any(), any())).thenThrow(
-                InMemoryOnlyBankingTransactionService.InsufficientFundsException.class
+        when(transactionService.withdraw(any(), any())).thenReturn(
+                WithdrawalResult.error(WithdrawalResult.Error.INSUFFICIENT_FUNDS)
         );
 
         String content = JsonHelpers.serializeContentForMvcTest(
@@ -79,8 +77,8 @@ public class TransactionsControllerTest {
 
     @Test
     public void makeWithdrawal_errors_whenAccountHasInvalideWithdrawalAmountException() throws Exception {
-        when(transactionService.withdraw(any(), any())).thenThrow(
-                InMemoryOnlyBankingTransactionService.InvalidWithdrawalAmountException.class
+        when(transactionService.withdraw(any(), any())).thenReturn(
+                WithdrawalResult.error(WithdrawalResult.Error.INVALID_WITHDRAWAL_AMOUNT)
         );
 
         String content = JsonHelpers.serializeContentForMvcTest(
@@ -91,4 +89,23 @@ public class TransactionsControllerTest {
 
         assertThat(resultCapturingMessageConverter.getResult()).isEqualTo(new ErrorResponse("Invalid withdrawal"));
     }
+
+
+    //OH WOW! I came up with this example and I even forgot about this case until I had autocomplete suggest it
+    //Switching to an enum makes things nicer!
+    @Test
+    public void makeWithdrawal_errors_whenNoSuchAccountFound() throws Exception {
+        when(transactionService.withdraw(any(), any())).thenReturn(
+                WithdrawalResult.error(WithdrawalResult.Error.NO_SUCH_ACCOUNT)
+        );
+
+        String content = JsonHelpers.serializeContentForMvcTest(
+                new WithdrawalRequest("12345ABC", new BigDecimal(500))
+        );
+        mockMvc.perform(MockMvcRequestBuilders.post("/accounts/withdrawals").content(content))
+                .andExpect(MockMvcResultMatchers.status().isBadRequest());
+
+        assertThat(resultCapturingMessageConverter.getResult()).isEqualTo(new ErrorResponse("No account found with the id 12345ABC"));
+    }
+
 }

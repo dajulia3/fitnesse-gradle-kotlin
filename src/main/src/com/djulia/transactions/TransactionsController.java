@@ -23,24 +23,30 @@ public class TransactionsController {
 
     @RequestMapping(value = "/accounts/withdrawals")
     public ResponseEntity<?> makeWithdrawal(@RequestBody WithdrawalRequest request ) {
-        try {
-            Account accountAfterWithdrawal = transactionService.withdraw(request.getAccountNumber(), request.getAmount());
-            WithdrawalResponse body = new WithdrawalResponse(accountAfterWithdrawal.getBalance());
+        WithdrawalResult result = transactionService.withdraw(request.getAccountNumber(), request.getAmount());
+        if(result.isSuccessful()){
+            WithdrawalResponse body = new WithdrawalResponse(result.getUpdatedAccount().get().getBalance());
             return ResponseEntity.status(201).body(body);
         }
-        //I had to KNOW to catch these exceptions!
-        catch (InMemoryOnlyBankingTransactionService.InactiveAccountException e){
-            return ResponseEntity.status(400).body(new TransactionsController.ErrorResponse("Inactive Account. Can't withdraw"));
+
+        WithdrawalResult.Error error = result.getError().get();
+        switch (error){
+            case INACTIVE_ACCOUNT:
+                return ResponseEntity.status(400).body(new TransactionsController.ErrorResponse("Inactive Account. Can't withdraw"));
+            case INVALID_WITHDRAWAL_AMOUNT:
+                return ResponseEntity.status(400).body(new TransactionsController.ErrorResponse("Invalid withdrawal"));
+            case INSUFFICIENT_FUNDS:
+                return ResponseEntity.status(400).body(new TransactionsController.ErrorResponse("Insufficient funds"));
+            case NO_SUCH_ACCOUNT:
+                return ResponseEntity.status(400).body(
+                        new TransactionsController.ErrorResponse("No account found with the id "+ request.getAccountNumber()));
         }
-        catch (InMemoryOnlyBankingTransactionService.InvalidWithdrawalAmountException e){
-            return ResponseEntity.status(400).body(new TransactionsController.ErrorResponse("Invalid withdrawal"));
-        }
-            catch (InMemoryOnlyBankingTransactionService.InsufficientFundsException e){
-            return ResponseEntity.status(400).body(new TransactionsController.ErrorResponse("Insufficient funds"));
-        }
-        //Did I catch them all? I can't be sure without looking at the implementation of the Concrete class.
+        //Did I catch them all?
+        //Well, at least while I typed them out, IntelliJ autocompleted all my examples. That's how I realized
+        //that I was missing a case for NO_SUCH_ACCOUNT. But I easily could have not noticed!
         //Talk about a leaky abstraction!
         //And these are known, reasonable cases!!!
+        throw new RuntimeException("I should never get here!");
     }
 
 

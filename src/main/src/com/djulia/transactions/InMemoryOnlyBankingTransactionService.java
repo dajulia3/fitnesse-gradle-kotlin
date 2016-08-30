@@ -1,6 +1,7 @@
 package com.djulia.transactions;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 
 class InMemoryOnlyBankingTransactionService implements BankingTransactionService {
 
@@ -11,22 +12,28 @@ class InMemoryOnlyBankingTransactionService implements BankingTransactionService
     }
 
     @Override
-    public Account withdraw(String accountId, BigDecimal amountToWithdraw) {
-        Account account = accountRepo.findById(accountId).orElseThrow(NoSuchAccountException::new);
+    public WithdrawalResult withdraw(String accountId, BigDecimal amountToWithdraw) {
+        Optional<Account> maybeAccount = accountRepo.findById(accountId);
+
+        if(!maybeAccount.isPresent()) {
+            return WithdrawalResult.error(WithdrawalResult.Error.NO_SUCH_ACCOUNT);
+        }
+
+        Account account = maybeAccount.get();
 
         if (!account.accountIsActive()) {
-            throw new InactiveAccountException();
+            return WithdrawalResult.error(WithdrawalResult.Error.INACTIVE_ACCOUNT);
         }
 
         if (withdrawalAmountAboveZero(amountToWithdraw)) {
-            throw new InvalidWithdrawalAmountException();
+            return WithdrawalResult.error(WithdrawalResult.Error.INVALID_WITHDRAWAL_AMOUNT);
         }
 
         if (account.balanceSufficientToCoverDebit(amountToWithdraw)) {
-            throw new InsufficientFundsException();
+            return WithdrawalResult.error(WithdrawalResult.Error.INSUFFICIENT_FUNDS);
         }
 
-        return account.accountDebitedBy(amountToWithdraw);
+        return WithdrawalResult.success(account.accountDebitedBy(amountToWithdraw));
     }
 
     private boolean withdrawalAmountAboveZero(BigDecimal amountToWithdraw) {

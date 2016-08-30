@@ -9,6 +9,7 @@ import java.math.BigDecimal;
 
 import static com.djulia.transactions.InMemoryOnlyBankingTransactionService.*;
 import static com.djulia.transactions.InMemoryOnlyBankingTransactionService.InsufficientFundsException;
+import static com.djulia.transactions.WithdrawalResult.Error.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -29,46 +30,39 @@ public class InMemoryOnlyBankingTransactionServiceTest {
 
     @Test
     public void withdrawReturnsNewAccountWithLowerBalance_whenWithdrawalUnderCurrentBalance() throws Exception {
-        Account result = bankingTransactionService.withdraw(accountNumberWith1500Balance, new BigDecimal(100));
+        WithdrawalResult result = bankingTransactionService.withdraw(accountNumberWith1500Balance, new BigDecimal(100));
 
-        assertThat(result.getBalance()).isEqualTo(new BigDecimal(1400));
+        assertThat(result.getUpdatedAccount().get().getBalance()).isEqualTo(new BigDecimal(1400));
     }
 
     @Test
     public void withdrawThrowsError_whenAccountDoesNotExist() throws Exception {
-        assertThatThrownBy(
-                () -> bankingTransactionService.withdraw("not-a-real-account-number", new BigDecimal(100))
-        ).isInstanceOf(NoSuchAccountException.class);
-
+        WithdrawalResult result = bankingTransactionService.withdraw("not-a-real-account-number", new BigDecimal(100));
+        assertThat(result).isEqualTo(WithdrawalResult.error(NO_SUCH_ACCOUNT));
     }
 
     @Test
     public void withdrawingZeroDollarsOrLess_raisesAnError() throws Exception {
-        assertThatThrownBy(
-                () -> bankingTransactionService.withdraw(accountNumberWith1500Balance, new BigDecimal(0))
-        ).isInstanceOf(InvalidWithdrawalAmountException.class);
+        WithdrawalResult withdrawZeroResult = bankingTransactionService.withdraw(accountNumberWith1500Balance, new BigDecimal(0));
+        assertThat(withdrawZeroResult).isEqualTo(WithdrawalResult.error(INVALID_WITHDRAWAL_AMOUNT));
 
-        assertThatThrownBy(
-                () -> bankingTransactionService.withdraw(accountNumberWith1500Balance, new BigDecimal(-1))
-        ).isInstanceOf(InvalidWithdrawalAmountException.class);
+        WithdrawalResult negativeWithdrawalResult = bankingTransactionService.withdraw(accountNumberWith1500Balance, new BigDecimal(-1));
+        assertThat(negativeWithdrawalResult).isEqualTo(WithdrawalResult.error(INVALID_WITHDRAWAL_AMOUNT));
     }
 
     @Test
     public void withdrawingMoreThanAccountBalance_raisesAnError() throws Exception {
-        assertThatThrownBy(
-                () -> bankingTransactionService.withdraw(accountNumberWith1500Balance, new BigDecimal(1501))
-        ).isInstanceOf(InsufficientFundsException.class);
+        WithdrawalResult result = bankingTransactionService.withdraw(accountNumberWith1500Balance, new BigDecimal(1501));
+        assertThat(result).isEqualTo(WithdrawalResult.error(INSUFFICIENT_FUNDS));
     }
 
     @Test
     public void withdrawingFromANonOpenAccount_raisesAnError() {
-        assertThatThrownBy(
-                () -> bankingTransactionService.withdraw(closedAccountNumber, new BigDecimal(20))
-        ).isInstanceOf(InactiveAccountException.class);
+        WithdrawalResult closedAccountResult = bankingTransactionService.withdraw(closedAccountNumber, new BigDecimal(20));
+        assertThat(closedAccountResult).isEqualTo(WithdrawalResult.error(INACTIVE_ACCOUNT));
 
-        assertThatThrownBy(
-                () -> bankingTransactionService.withdraw(frozenAccountNumber, new BigDecimal(20))
-        ).isInstanceOf(InactiveAccountException.class);
+        WithdrawalResult frozenAccountResult = bankingTransactionService.withdraw(frozenAccountNumber, new BigDecimal(20));
+        assertThat(frozenAccountResult).isEqualTo(WithdrawalResult.error(INACTIVE_ACCOUNT));
     }
 
 }
