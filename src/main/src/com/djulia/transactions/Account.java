@@ -55,7 +55,8 @@ class Account {
 
         if (accountNumber != null ? !accountNumber.equals(account.accountNumber) : account.accountNumber != null)
             return false;
-        return balance != null ? balance.equals(account.balance) : account.balance == null;
+        if (balance != null ? !balance.equals(account.balance) : account.balance != null) return false;
+        return status == account.status;
 
     }
 
@@ -63,6 +64,7 @@ class Account {
     public int hashCode() {
         int result = accountNumber != null ? accountNumber.hashCode() : 0;
         result = 31 * result + (balance != null ? balance.hashCode() : 0);
+        result = 31 * result + (status != null ? status.hashCode() : 0);
         return result;
     }
 
@@ -71,6 +73,7 @@ class Account {
         return "Account{" +
                 "accountNumber='" + accountNumber + '\'' +
                 ", balance=" + balance +
+                ", status=" + status +
                 '}';
     }
 
