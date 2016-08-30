@@ -37,7 +37,7 @@ public class InMemoryOnlyBankingTransactionServiceTest {
     }
 
     @Test
-    public void withdrawingZeroDollarsOrLess_raisesAnError() throws Exception {
+    public void withdrawingZeroDollarsOrLess_returnsAnError() throws Exception {
         WithdrawalResult withdrawZeroResult = bankingTransactionService.withdraw(accountNumberWith1500Balance, new BigDecimal(0));
         assertThat(withdrawZeroResult).isEqualTo(WithdrawalResult.error(new WithdrawalResult.InvalidWithdrawalAmountError()));
 
@@ -46,13 +46,13 @@ public class InMemoryOnlyBankingTransactionServiceTest {
     }
 
     @Test
-    public void withdrawingMoreThanAccountBalance_raisesAnError() throws Exception {
+    public void withdrawingMoreThanAccountBalance_returnsAnError() throws Exception {
         WithdrawalResult result = bankingTransactionService.withdraw(accountNumberWith1500Balance, new BigDecimal(1501));
-        assertThat(result).isEqualTo(WithdrawalResult.error(new WithdrawalResult.InsufficientFundsError()));
+        assertThat(result).isEqualTo(WithdrawalResult.error(new WithdrawalResult.InsufficientFundsError(new BigDecimal(1))));
     }
 
     @Test
-    public void withdrawingFromANonOpenAccount_raisesAnError() {
+    public void withdrawingFromANonOpenAccount_returnsAnError() {
         WithdrawalResult closedAccountResult = bankingTransactionService.withdraw(closedAccountNumber, new BigDecimal(20));
         assertThat(closedAccountResult).isEqualTo(WithdrawalResult.error(new WithdrawalResult.InactiveAccountError()));
 

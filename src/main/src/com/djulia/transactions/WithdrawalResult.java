@@ -1,5 +1,6 @@
 package com.djulia.transactions;
 
+import java.math.BigDecimal;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
@@ -26,6 +27,34 @@ public class WithdrawalResult {
     }
 
     public static class InsufficientFundsError extends Error {
+        private BigDecimal differenceInFunds;
+
+        public InsufficientFundsError(BigDecimal differenceInFunds) {
+            this.differenceInFunds = differenceInFunds;
+        }
+
+        public BigDecimal getDifferenceInFunds() {
+            return differenceInFunds;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            if (!super.equals(o)) return false;
+
+            InsufficientFundsError that = (InsufficientFundsError) o;
+
+            return differenceInFunds != null ? differenceInFunds.equals(that.differenceInFunds) : that.differenceInFunds == null;
+
+        }
+
+        @Override
+        public int hashCode() {
+            int result = super.hashCode();
+            result = 31 * result + (differenceInFunds != null ? differenceInFunds.hashCode() : 0);
+            return result;
+        }
     }
 
     public static class InactiveAccountError extends Error {

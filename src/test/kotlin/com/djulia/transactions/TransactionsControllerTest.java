@@ -57,7 +57,7 @@ public class TransactionsControllerTest {
     @Test
     public void makeWithdrawal_errors_whenAccountHasInsufficientFunds() throws Exception {
         when(transactionService.withdraw(any(), any())).thenReturn(
-                WithdrawalResult.error(new WithdrawalResult.InsufficientFundsError())
+                WithdrawalResult.error(new WithdrawalResult.InsufficientFundsError(new BigDecimal(55)))
         );
 
         String content = JsonHelpers.serializeContentForMvcTest(
@@ -66,7 +66,7 @@ public class TransactionsControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.post("/accounts/withdrawals").content(content))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest());
 
-        assertThat(resultCapturingMessageConverter.getResult()).isEqualTo(new ErrorResponse("Insufficient funds"));
+        assertThat(resultCapturingMessageConverter.getResult()).isEqualTo(new ErrorResponse("Insufficient funds. Need $55 to complete transaction."));
     }
 
     @Test

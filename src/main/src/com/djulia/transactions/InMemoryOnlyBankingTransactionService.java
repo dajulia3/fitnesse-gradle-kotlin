@@ -30,7 +30,7 @@ class InMemoryOnlyBankingTransactionService implements BankingTransactionService
         }
 
         if (account.balanceSufficientToCoverDebit(amountToWithdraw)) {
-            return WithdrawalResult.error(new WithdrawalResult.InsufficientFundsError());
+            return WithdrawalResult.error(new WithdrawalResult.InsufficientFundsError(account.getBalance().subtract(amountToWithdraw).abs()));
         }
 
         return WithdrawalResult.success(account.accountDebitedBy(amountToWithdraw));

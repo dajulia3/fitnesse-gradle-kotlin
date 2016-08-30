@@ -31,7 +31,8 @@ public class TransactionsController {
                 },
                 inactive -> ResponseEntity.status(400).body(new TransactionsController.ErrorResponse("Inactive Account. Can't withdraw")),
                 invalid -> ResponseEntity.status(400).body(new TransactionsController.ErrorResponse("Invalid withdrawal")),
-                insufficient -> ResponseEntity.status(400).body(new TransactionsController.ErrorResponse("Insufficient funds")),
+                insufficient -> ResponseEntity.status(400).body(new TransactionsController.ErrorResponse(
+                        "Insufficient funds. Need $"+insufficient.getDifferenceInFunds()+" to complete transaction.")),
                 noSuchAccount -> ResponseEntity.status(400).body(new TransactionsController.ErrorResponse("No account found with the id "+ request.getAccountNumber()))
         );
 
