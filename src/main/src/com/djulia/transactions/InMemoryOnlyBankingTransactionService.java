@@ -16,21 +16,21 @@ class InMemoryOnlyBankingTransactionService implements BankingTransactionService
         Optional<Account> maybeAccount = accountRepo.findById(accountId);
 
         if(!maybeAccount.isPresent()) {
-            return WithdrawalResult.error(WithdrawalResult.Error.NO_SUCH_ACCOUNT);
+            return WithdrawalResult.error(new WithdrawalResult.NoSuchAccountError());
         }
 
         Account account = maybeAccount.get();
 
         if (!account.accountIsActive()) {
-            return WithdrawalResult.error(WithdrawalResult.Error.INACTIVE_ACCOUNT);
+            return WithdrawalResult.error(new WithdrawalResult.InactiveAccountError());
         }
 
         if (withdrawalAmountAboveZero(amountToWithdraw)) {
-            return WithdrawalResult.error(WithdrawalResult.Error.INVALID_WITHDRAWAL_AMOUNT);
+            return WithdrawalResult.error(new WithdrawalResult.InvalidWithdrawalAmountError());
         }
 
         if (account.balanceSufficientToCoverDebit(amountToWithdraw)) {
-            return WithdrawalResult.error(WithdrawalResult.Error.INSUFFICIENT_FUNDS);
+            return WithdrawalResult.error(new WithdrawalResult.InsufficientFundsError());
         }
 
         return WithdrawalResult.success(account.accountDebitedBy(amountToWithdraw));

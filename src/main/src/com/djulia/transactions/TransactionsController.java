@@ -2,6 +2,7 @@ package com.djulia.transactions;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.apache.catalina.connector.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -29,24 +30,17 @@ public class TransactionsController {
             return ResponseEntity.status(201).body(body);
         }
 
-        WithdrawalResult.Error error = result.getError().get();
-        switch (error){
-            case INACTIVE_ACCOUNT:
-                return ResponseEntity.status(400).body(new TransactionsController.ErrorResponse("Inactive Account. Can't withdraw"));
-            case INVALID_WITHDRAWAL_AMOUNT:
-                return ResponseEntity.status(400).body(new TransactionsController.ErrorResponse("Invalid withdrawal"));
-            case INSUFFICIENT_FUNDS:
-                return ResponseEntity.status(400).body(new TransactionsController.ErrorResponse("Insufficient funds"));
-            case NO_SUCH_ACCOUNT:
-                return ResponseEntity.status(400).body(
-                        new TransactionsController.ErrorResponse("No account found with the id "+ request.getAccountNumber()));
-        }
-        //Did I catch them all?
-        //Well, at least while I typed them out, IntelliJ autocompleted all my examples. That's how I realized
-        //that I was missing a case for NO_SUCH_ACCOUNT. But I easily could have not noticed!
-        //Talk about a leaky abstraction!
-        //And these are known, reasonable cases!!!
-        throw new RuntimeException("I should never get here!");
+        ResponseEntity<ErrorResponse> errorResponse = result.matchError(
+                inactive ->ResponseEntity.status(400).body(new TransactionsController.ErrorResponse("Inactive Account. Can't withdraw")),
+                invalid -> ResponseEntity.status(400).body(new TransactionsController.ErrorResponse("Invalid withdrawal")),
+                insufficient -> ResponseEntity.status(400).body(new TransactionsController.ErrorResponse("Insufficient funds")),
+                noSuchAccount -> ResponseEntity.status(400).body(new TransactionsController.ErrorResponse("No account found with the id "+ request.getAccountNumber()))
+        );
+
+        return errorResponse;
+        //DEFINITELY caught them all, as long as match is kept up to date (more likely since all changes to error types
+        // are local to that file)!!!
+        //much better, but does it buy us anything more??
     }
 
 

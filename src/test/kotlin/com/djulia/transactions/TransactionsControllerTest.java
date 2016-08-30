@@ -39,16 +39,10 @@ public class TransactionsControllerTest {
         assertThat(resultCapturingMessageConverter.getResult()).isEqualTo(new WithdrawalResponse(new BigDecimal(200)));
     }
 
-    ///////////////////////////////////////////////////////////////////////////////////////////
-    ///////////// I had to KNOW to write these tests based on internals of the ////////////////
-    ///////////// InMemoryOnlyBankingTransactionService class!!                ////////////////
-    ///////////// YUCK!!!!!                                                    ////////////////
-    ///////////////////////////////////////////////////////////////////////////////////////////
-
     @Test
     public void makeWithdrawal_errors_whenAccountIsInactive() throws Exception {
         when(transactionService.withdraw(any(), any())).thenReturn(
-                WithdrawalResult.error(WithdrawalResult.Error.INACTIVE_ACCOUNT)
+                WithdrawalResult.error(new WithdrawalResult.InactiveAccountError())
         );
 
         String content = JsonHelpers.serializeContentForMvcTest(
@@ -63,7 +57,7 @@ public class TransactionsControllerTest {
     @Test
     public void makeWithdrawal_errors_whenAccountHasInsufficientFunds() throws Exception {
         when(transactionService.withdraw(any(), any())).thenReturn(
-                WithdrawalResult.error(WithdrawalResult.Error.INSUFFICIENT_FUNDS)
+                WithdrawalResult.error(new WithdrawalResult.InsufficientFundsError())
         );
 
         String content = JsonHelpers.serializeContentForMvcTest(
@@ -78,7 +72,7 @@ public class TransactionsControllerTest {
     @Test
     public void makeWithdrawal_errors_whenAccountHasInvalideWithdrawalAmountException() throws Exception {
         when(transactionService.withdraw(any(), any())).thenReturn(
-                WithdrawalResult.error(WithdrawalResult.Error.INVALID_WITHDRAWAL_AMOUNT)
+                WithdrawalResult.error(new WithdrawalResult.InvalidWithdrawalAmountError())
         );
 
         String content = JsonHelpers.serializeContentForMvcTest(
@@ -96,7 +90,7 @@ public class TransactionsControllerTest {
     @Test
     public void makeWithdrawal_errors_whenNoSuchAccountFound() throws Exception {
         when(transactionService.withdraw(any(), any())).thenReturn(
-                WithdrawalResult.error(WithdrawalResult.Error.NO_SUCH_ACCOUNT)
+                WithdrawalResult.error(new WithdrawalResult.NoSuchAccountError())
         );
 
         String content = JsonHelpers.serializeContentForMvcTest(

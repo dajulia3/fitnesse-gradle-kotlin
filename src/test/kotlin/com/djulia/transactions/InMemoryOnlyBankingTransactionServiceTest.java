@@ -33,31 +33,31 @@ public class InMemoryOnlyBankingTransactionServiceTest {
     @Test
     public void withdrawThrowsError_whenAccountDoesNotExist() throws Exception {
         WithdrawalResult result = bankingTransactionService.withdraw("not-a-real-account-number", new BigDecimal(100));
-        assertThat(result).isEqualTo(WithdrawalResult.error(NO_SUCH_ACCOUNT));
+        assertThat(result).isEqualTo(WithdrawalResult.error(new WithdrawalResult.NoSuchAccountError()));
     }
 
     @Test
     public void withdrawingZeroDollarsOrLess_raisesAnError() throws Exception {
         WithdrawalResult withdrawZeroResult = bankingTransactionService.withdraw(accountNumberWith1500Balance, new BigDecimal(0));
-        assertThat(withdrawZeroResult).isEqualTo(WithdrawalResult.error(INVALID_WITHDRAWAL_AMOUNT));
+        assertThat(withdrawZeroResult).isEqualTo(WithdrawalResult.error(new WithdrawalResult.InvalidWithdrawalAmountError()));
 
         WithdrawalResult negativeWithdrawalResult = bankingTransactionService.withdraw(accountNumberWith1500Balance, new BigDecimal(-1));
-        assertThat(negativeWithdrawalResult).isEqualTo(WithdrawalResult.error(INVALID_WITHDRAWAL_AMOUNT));
+        assertThat(negativeWithdrawalResult).isEqualTo(WithdrawalResult.error(new WithdrawalResult.InvalidWithdrawalAmountError()));
     }
 
     @Test
     public void withdrawingMoreThanAccountBalance_raisesAnError() throws Exception {
         WithdrawalResult result = bankingTransactionService.withdraw(accountNumberWith1500Balance, new BigDecimal(1501));
-        assertThat(result).isEqualTo(WithdrawalResult.error(INSUFFICIENT_FUNDS));
+        assertThat(result).isEqualTo(WithdrawalResult.error(new WithdrawalResult.InsufficientFundsError()));
     }
 
     @Test
     public void withdrawingFromANonOpenAccount_raisesAnError() {
         WithdrawalResult closedAccountResult = bankingTransactionService.withdraw(closedAccountNumber, new BigDecimal(20));
-        assertThat(closedAccountResult).isEqualTo(WithdrawalResult.error(INACTIVE_ACCOUNT));
+        assertThat(closedAccountResult).isEqualTo(WithdrawalResult.error(new WithdrawalResult.InactiveAccountError()));
 
         WithdrawalResult frozenAccountResult = bankingTransactionService.withdraw(frozenAccountNumber, new BigDecimal(20));
-        assertThat(frozenAccountResult).isEqualTo(WithdrawalResult.error(INACTIVE_ACCOUNT));
+        assertThat(frozenAccountResult).isEqualTo(WithdrawalResult.error(new WithdrawalResult.InactiveAccountError()));
     }
 
 }
