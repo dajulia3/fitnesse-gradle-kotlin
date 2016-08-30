@@ -61,10 +61,11 @@ public class WithdrawalResult {
         return updatedAccount;
     }
 
-    public <T> T matchError(Function<InactiveAccountError, T> inactiveAccountHandler,
-                            Function<InvalidWithdrawalAmountError, T> invalidWithdrawalAmountHandler,
-                            Function<InsufficientFundsError, T> insufficientFundsHandler,
-                            Function<NoSuchAccountError, T> noSuchAccountError
+    public <T> T match(Function<Account, T> successHandlerWithUpdatedAccount,
+                       Function<InactiveAccountError, T> inactiveAccountHandler,
+                       Function<InvalidWithdrawalAmountError, T> invalidWithdrawalAmountHandler,
+                       Function<InsufficientFundsError, T> insufficientFundsHandler,
+                       Function<NoSuchAccountError, T> noSuchAccountError
     ) {
         if (maybeError.isPresent()) {
             Error error = maybeError.get();
@@ -78,12 +79,12 @@ public class WithdrawalResult {
                 return inactiveAccountHandler.apply((InactiveAccountError) error);
             } else if (error instanceof NoSuchAccountError) {
                 return noSuchAccountError.apply((NoSuchAccountError) error);
-            } else{
+            } else {
                 throw new RuntimeException("should never get here! If we got here, " +
                         "maybe a dev forgot to add a handler for a new error type???");
             }
         }
-        throw new RuntimeException("there was no error at all! Why'd you call this method");
+        return successHandlerWithUpdatedAccount.apply(updatedAccount.get());
     }
 
     @Override

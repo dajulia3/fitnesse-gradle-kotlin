@@ -2,9 +2,7 @@ package com.djulia.transactions;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.apache.catalina.connector.Response;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,13 +23,13 @@ public class TransactionsController {
     @RequestMapping(value = "/accounts/withdrawals")
     public ResponseEntity<?> makeWithdrawal(@RequestBody WithdrawalRequest request ) {
         WithdrawalResult result = transactionService.withdraw(request.getAccountNumber(), request.getAmount());
-        if(result.isSuccessful()){
-            WithdrawalResponse body = new WithdrawalResponse(result.getUpdatedAccount().get().getBalance());
-            return ResponseEntity.status(201).body(body);
-        }
 
-        ResponseEntity<ErrorResponse> errorResponse = result.matchError(
-                inactive ->ResponseEntity.status(400).body(new TransactionsController.ErrorResponse("Inactive Account. Can't withdraw")),
+        ResponseEntity<?> errorResponse = result.match(
+                successfullyUpdatedAccount -> {
+                    WithdrawalResponse body = new WithdrawalResponse(successfullyUpdatedAccount.getBalance());
+                    return ResponseEntity.status(201).body(body);
+                },
+                inactive -> ResponseEntity.status(400).body(new TransactionsController.ErrorResponse("Inactive Account. Can't withdraw")),
                 invalid -> ResponseEntity.status(400).body(new TransactionsController.ErrorResponse("Invalid withdrawal")),
                 insufficient -> ResponseEntity.status(400).body(new TransactionsController.ErrorResponse("Insufficient funds")),
                 noSuchAccount -> ResponseEntity.status(400).body(new TransactionsController.ErrorResponse("No account found with the id "+ request.getAccountNumber()))
