@@ -1,17 +1,12 @@
 package com.djulia.transactions;
 
-import com.djulia.transactions.InMemoryOnlyBankingTransactionService.InactiveAccountException;
-import com.djulia.transactions.InMemoryOnlyBankingTransactionService.InvalidWithdrawalAmountException;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.math.BigDecimal;
 
-import static com.djulia.transactions.InMemoryOnlyBankingTransactionService.*;
-import static com.djulia.transactions.InMemoryOnlyBankingTransactionService.InsufficientFundsException;
 import static com.djulia.transactions.WithdrawalResult.Error.*;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class InMemoryOnlyBankingTransactionServiceTest {
     private BankingTransactionService bankingTransactionService;

@@ -40,17 +40,4 @@ class InMemoryOnlyBankingTransactionService implements BankingTransactionService
         return amountToWithdraw.compareTo(new BigDecimal(0)) <= 0;
     }
 
-    public static class InvalidWithdrawalAmountException extends RuntimeException {
-
-    }
-
-    public static class InsufficientFundsException extends RuntimeException {
-
-    }
-
-    public static class InactiveAccountException extends RuntimeException {
-    }
-
-    public static class NoSuchAccountException extends RuntimeException {
-    }
 }
