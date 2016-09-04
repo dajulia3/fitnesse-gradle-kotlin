@@ -1,0 +1,71 @@
+repositories {
+    mavenCentral()
+}
+
+configurations {
+    fitnesse
+}
+
+apply plugin: 'kotlin'
+apply plugin: 'java'
+apply plugin: 'idea'
+
+dependencies {
+    fitnesse 'org.fitnesse:fitnesse:20160618'
+    compile("org.jetbrains.kotlin:kotlin-stdlib:${kotlinVersion}")
+    testCompile 'org.fitnesse:fitnesse:20160618'
+//    testCompile 'org.fitnesse:fitnesse:20160618:standalone'
+    testCompile 'junit:junit:4.5'
+    runtime 'org.fitnesse:fitnesse:20160618:standalone'
+}
+
+task("writeFitNesseClasspath", type: WriteFitNesseClasspath) {
+    classpath = project.configurations.fitnesse + configurations.runtime
+    pagePath = project.file("customer-acceptance-tests/FrontPage")
+}
+
+project.tasks.getByName("clean").dependsOn("cleanWriteFitNesseClasspath")
+
+task("wiki", type: JavaExec) {
+    dependsOn writeFitNesseClasspath
+    dependsOn compileJava
+    classpath configurations.fitnesse
+    main "fitnesseMain.FitNesseMain"
+    args "-p", "8000", "-e", "0"
+}
+
+/// === Custom Tasks
+
+class WriteFitNesseClasspath extends DefaultTask {
+    @Input
+    def classpath
+
+    @OutputDirectory
+    File pagePath
+
+    @TaskAction
+    def generatePage() {
+        def contentTxt = project.file("${pagePath}/content.txt")
+        contentTxt.createNewFile()
+        contentTxt.withWriter { writer ->
+            writer.writeLine("!path ${project.sourceSets.main.output.classesDir}")
+            writer.writeLine("!path src/main/resources")
+            classpath.each { d ->
+                writer.writeLine("!path $d")
+            }
+        }
+    }
+}
+
+task("acceptanceTest", type: JavaExec) {
+    dependsOn writeFitNesseClasspath
+    dependsOn compileJava
+    classpath configurations.fitnesse
+//    main "fitnesseMain.FitNesseMain"
+//    args "-p", "8000", "-e", "0"
+
+}
+
+sourceSets {
+    test.java.srcDirs += 'src/test'
+}

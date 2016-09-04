@@ -1,0 +1,7 @@
+!define TEST_SYSTEM {slim}
+!1 Transactions
+!contents -R2 -g -p -f -h
+Would probably link to separate pages for different transactions.
+
+| Account Balance | Interest Rate (%) | Time Period (days) |
+| 1500 | .01 | 5 |
