@@ -1,4 +1,4 @@
-package com.djulia.transactions
+package com.djulia.banking.transactions
 
 import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.ObjectMapper

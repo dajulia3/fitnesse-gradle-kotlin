@@ -1,4 +1,4 @@
-package com.djulia.transactions
+package com.djulia.banking.transactions
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity

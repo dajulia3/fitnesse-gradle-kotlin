@@ -1,4 +1,4 @@
-package com.djulia.transactions
+package com.djulia.banking.transactions
 
 import java.math.BigDecimal
 

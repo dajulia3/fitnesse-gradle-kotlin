@@ -1,6 +1,7 @@
-package com.djulia.transactions
+package com.djulia.banking.transactions
 
-import com.djulia.transactions.TransactionsController.WithdrawalRequest
+import com.djulia.banking.testhelpers.whenever
+import com.djulia.banking.transactions.TransactionsController.WithdrawalRequest
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import org.junit.Test
@@ -10,15 +11,13 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
 
-import src.com.djulia.transactions.whenever
-import src.com.djulia.transactions.any
-import src.com.djulia.transactions.anyObject
+import com.djulia.banking.testhelpers.*
 
 import java.math.BigDecimal
 
 import org.assertj.core.api.KotlinAssertions.assertThat
-import com.djulia.transactions.TransactionsController.ErrorResponse
-import com.djulia.transactions.TransactionsController.WithdrawalResponse
+import com.djulia.banking.transactions.TransactionsController.ErrorResponse
+import com.djulia.banking.transactions.TransactionsController.WithdrawalResponse
 import org.mockito.Mockito.*
 
 class TransactionsControllerTest {
@@ -30,9 +29,9 @@ class TransactionsControllerTest {
     @Test
     @Throws(Exception::class)
     fun makeWithdrawal() {
-        whenever(transactionService.withdraw(anyObject(), anyObject()))
+        whenever(transactionService.withdraw(com.djulia.banking.testhelpers.anyObject(), com.djulia.banking.testhelpers.anyObject()))
                 .thenReturn(WithdrawalResult.success(Account("12345ABC", BigDecimal(200), Account.Status.OPEN)))
-        whenever(transactionService.withdraw(src.com.djulia.transactions.anyObject(), src.com.djulia.transactions.anyObject())).thenReturn(
+        whenever(transactionService.withdraw(com.djulia.banking.testhelpers.anyObject(), com.djulia.banking.testhelpers.anyObject())).thenReturn(
                 WithdrawalResult.success(Account("12345ABC", BigDecimal(200), Account.Status.OPEN)))
         val content = JsonHelpers.serializeContentForMvcTest(
                 WithdrawalRequest("12345ABC", BigDecimal(500)))
@@ -45,7 +44,7 @@ class TransactionsControllerTest {
     @Test
     @Throws(Exception::class)
     fun makeWithdrawal_errors_whenAccountIsInactive() {
-        whenever(transactionService.withdraw(any(), any())).thenReturn(
+        whenever(transactionService.withdraw(com.djulia.banking.testhelpers.any(), com.djulia.banking.testhelpers.any())).thenReturn(
                 WithdrawalResult.error(WithdrawalResult.Error.InactiveAccountError()))
 
         val content = JsonHelpers.serializeContentForMvcTest(
@@ -58,7 +57,7 @@ class TransactionsControllerTest {
     @Test
     @Throws(Exception::class)
     fun makeWithdrawal_errors_whenAccountHasInsufficientFunds() {
-        whenever(transactionService.withdraw(any(), any())).thenReturn(
+        whenever(transactionService.withdraw(com.djulia.banking.testhelpers.any(), com.djulia.banking.testhelpers.any())).thenReturn(
                 WithdrawalResult.error(WithdrawalResult.Error.InsufficientFundsError(BigDecimal(55))))
 
         val content = JsonHelpers.serializeContentForMvcTest(
@@ -71,7 +70,7 @@ class TransactionsControllerTest {
     @Test
     @Throws(Exception::class)
     fun makeWithdrawal_errors_whenAccountHasInvalideWithdrawalAmountException() {
-        whenever(transactionService.withdraw(any(), any())).thenReturn(
+        whenever(transactionService.withdraw(com.djulia.banking.testhelpers.any(), com.djulia.banking.testhelpers.any())).thenReturn(
                 WithdrawalResult.error(WithdrawalResult.Error.InvalidWithdrawalAmountError()))
 
         val content = JsonHelpers.serializeContentForMvcTest(
@@ -84,7 +83,7 @@ class TransactionsControllerTest {
     @Test
     @Throws(Exception::class)
     fun makeWithdrawal_errors_whenNoSuchAccountFound() {
-        whenever(transactionService.withdraw(any(), any())).thenReturn(
+        whenever(transactionService.withdraw(com.djulia.banking.testhelpers.any(), com.djulia.banking.testhelpers.any())).thenReturn(
                 WithdrawalResult.error(WithdrawalResult.Error.NoSuchAccountError()))
 
         val content = JsonHelpers.serializeContentForMvcTest(

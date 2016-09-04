@@ -1,4 +1,4 @@
-package com.djulia.transactions
+package com.djulia.banking.transactions
 
 import java.util.Optional
 import java.util.concurrent.ConcurrentHashMap

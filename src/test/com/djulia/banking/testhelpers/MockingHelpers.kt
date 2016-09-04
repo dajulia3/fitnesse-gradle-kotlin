@@ -1,4 +1,4 @@
-package src.com.djulia.transactions
+package com.djulia.banking.testhelpers
 
 import org.mockito.Mockito
 
@@ -10,7 +10,7 @@ fun <T> any(): T {
     return Mockito.anyObject<T>()
 }
 
-fun <T> whenever(mock : T) = org.mockito.Mockito.`when`(mock)
+fun <T> whenever(mock : T) = Mockito.`when`(mock)
 
 fun <T> upon(): T {
     return Mockito.anyObject<T>()

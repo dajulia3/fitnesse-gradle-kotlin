@@ -1,4 +1,4 @@
-package com.djulia.transactions
+package com.djulia.banking.transactions
 
 import org.junit.Test
 
@@ -25,6 +25,4 @@ class InMemoryAccountRepoTest {
 
         assertThat(result).isEqualTo(account)
     }
-
-
 }
