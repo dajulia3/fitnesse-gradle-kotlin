@@ -8,7 +8,7 @@ import java.math.BigDecimal
 
 object JsonHelpers {
 
-    public val objectMapper = ObjectMapper().registerModule(KotlinModule())
+    val objectMapper = ObjectMapper().registerModule(KotlinModule())
 
     fun serializeContentForMvcTest(value: Any): String {
         try {

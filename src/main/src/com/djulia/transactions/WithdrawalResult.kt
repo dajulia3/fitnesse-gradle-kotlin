@@ -1,40 +1,25 @@
 package com.djulia.transactions
 
 import java.math.BigDecimal
-import java.util.Objects
-import java.util.Optional
-import java.util.function.Function
 
 class WithdrawalResult {
-
     val updatedAccount: Account?
     val maybeError: Error?
 
-    //Now we want to associate information with our errors!
     sealed class Error {
+        override fun equals(other: Any?): Boolean {
+            return this.javaClass.equals(other?.javaClass)
+        }
+
+        override fun hashCode(): Int {
+            return this.javaClass.hashCode()
+        }
+
         class InvalidWithdrawalAmountError : Error()
         class InactiveAccountError : Error()
         class NoSuchAccountError : Error()
-        class InsufficientFundsError(val differenceInFunds: BigDecimal?) : Error() {
-            override fun equals(o: Any?): Boolean {
-                if (this === o) return true
-                if (o == null || javaClass != o.javaClass) return false
-                if (!super.equals(o)) return false
-
-                val that = o as InsufficientFundsError?
-
-                return if (differenceInFunds != null) differenceInFunds == that?.differenceInFunds else that?.differenceInFunds == null
-
-            }
-
-            override fun hashCode(): Int {
-                var result = super.hashCode()
-                result = 31 * result + if (differenceInFunds != null) differenceInFunds.hashCode() else 0
-                return result
-            }
-        }
+        data class InsufficientFundsError(val differenceInFunds: BigDecimal?) : Error()
     }
-
 
 
     private constructor(error: Error) {
@@ -45,32 +30,6 @@ class WithdrawalResult {
     private constructor(updatedAccount: Account) {
         this.updatedAccount = updatedAccount
         this.maybeError = null
-
-    }
-
-    val isSuccessful: Boolean
-        get() = if(maybeError == null){true } else false
-
-    override fun equals(o: Any?): Boolean {
-        if (this === o) return true
-        if (o == null || javaClass != o.javaClass) return false
-
-        val that = o as WithdrawalResult?
-
-        if (if (updatedAccount != null) updatedAccount != that?.updatedAccount else that?.updatedAccount != null)
-            return false
-        return if (maybeError != null) maybeError == that?.maybeError else that?.maybeError == null
-
-    }
-
-    override fun hashCode(): Int {
-        var result = if (updatedAccount != null) updatedAccount.hashCode() else 0
-        result = 31 * result + if (maybeError != null) maybeError.hashCode() else 0
-        return result
-    }
-
-    override fun toString(): String {
-        return "WithdrawalResult{updatedAccount=$updatedAccount, maybeError=$maybeError}"
     }
 
     companion object {
@@ -83,5 +42,28 @@ class WithdrawalResult {
             return WithdrawalResult(updatedAccount)
         }
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other?.javaClass != javaClass) return false
+
+        other as WithdrawalResult
+
+        if (updatedAccount != other.updatedAccount) return false
+        if (maybeError != other.maybeError) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = updatedAccount?.hashCode() ?: 0
+        result = 31 * result + (maybeError?.hashCode() ?: 0)
+        return result
+    }
+
+    override fun toString(): String {
+        return "WithdrawalResult(updatedAccount=$updatedAccount, maybeError=$maybeError)"
+    }
+
 
 }

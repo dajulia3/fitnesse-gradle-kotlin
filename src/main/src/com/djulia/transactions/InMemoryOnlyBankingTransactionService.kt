@@ -7,7 +7,7 @@ internal class InMemoryOnlyBankingTransactionService(private val accountRepo: Ac
     override fun withdraw(accountId: String, amountToWithdraw: BigDecimal): WithdrawalResult {
         val maybeAccount = accountRepo.findById(accountId) ?: return WithdrawalResult.error(WithdrawalResult.Error.NoSuchAccountError())
 
-        if (maybeAccount.accountIsActive()) {
+        if (!maybeAccount.accountIsActive()) {
             return WithdrawalResult.error(WithdrawalResult.Error.InactiveAccountError())
         }
 
