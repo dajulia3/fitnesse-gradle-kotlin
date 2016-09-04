@@ -1,5 +1,5 @@
 apply plugin: 'eclipse'
-apply plugin: 'spring-boot'
+apply plugin: 'kotlin'
 
 jar {
     baseName = 'adt-kotlin'
@@ -10,14 +10,11 @@ sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 dependencies {
-    compile('org.springframework.boot:spring-boot-starter-web')
     compile("org.jetbrains.kotlin:kotlin-stdlib:${kotlinVersion}")
-    compile "com.fasterxml.jackson.module:jackson-module-kotlin:2.7.5"
-    testCompile('org.springframework.boot:spring-boot-starter-test')
     testCompile('net.wuerl.kotlin:assertj-core-kotlin:0.1.1')
     testCompile('org.assertj:assertj-core:3.5.2')
     testCompile('org.mockito:mockito-all:1.10.19')
-    testCompile('javax.json:javax.json-api:1.0')
+    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 }
 
 
@@ -31,4 +28,14 @@ sourceSets {
     main.java.srcDirs += 'src/main'
     test.java.srcDirs += 'src/test'
     test.java.srcDirs += 'src/acceptance-test'
+}
+buildscript {
+    ext.kotlin_version = '1.0.3'
+    repositories {
+        mavenCentral()
+    }
+}
+
+repositories {
+    mavenCentral()
 }

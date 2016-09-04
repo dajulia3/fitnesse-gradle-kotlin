@@ -1,0 +1,25 @@
+apply plugin: 'spring-boot'
+apply plugin: 'kotlin'
+
+dependencies {
+    compile('org.springframework.boot:spring-boot-starter-web')
+    compile "com.fasterxml.jackson.module:jackson-module-kotlin:2.7.5"
+
+    testCompile('org.springframework.boot:spring-boot-starter-test')
+    testCompile('javax.json:javax.json-api:1.0')
+    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+}
+
+sourceSets {
+    main.java.srcDirs += 'src/main'
+    test.java.srcDirs += 'src/test'
+}
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+}
+repositories {
+    mavenCentral()
+}

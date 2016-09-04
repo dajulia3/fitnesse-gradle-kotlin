@@ -25,7 +25,7 @@ internal class ResultCapturingMessageConverter : HttpMessageConverter<Any> {
 
     @Throws(IOException::class, HttpMessageNotReadableException::class)
     override fun read(clazz: Class<*>, inputMessage: HttpInputMessage): Any {
-        return makeDefaultObjectMapper().readValue(inputMessage.body, clazz)
+        return com.djulia.banking.api.transactions.makeDefaultObjectMapper().readValue(inputMessage.body, clazz)
     }
 
     @Throws(IOException::class, HttpMessageNotWritableException::class)

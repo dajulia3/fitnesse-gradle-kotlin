@@ -1,0 +1,4 @@
+!define TEST_SYSTEM {slim}
+Transactions
+
+[[>InterestCalculationsTest][>InterestCalculationTest]]

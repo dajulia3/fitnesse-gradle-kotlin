@@ -1,0 +1,21 @@
+!contents -R2 -g -p -f -h
+<test page>
+
+The same initial account balance, over time, can earn very different interest depending on whether the
+interest is simple or compounding.
+APY corresponds to compounding interest.
+
+|Simple Interest                                                                     |
+|Initial Balance|APR (%)|Time Period (months)|Earned Interest ($)|New Account Balance|
+|1500           |.01    |5                   |.06                |1500.06            |
+|2000           |.02    |10                  |.33                |2000.33            |
+|2000           |6      |11                  |110.00             |2110.00            |
+|1500           |.01    |0                   |0                  |1500.00            |
+|1500           |0      |.07                 |0                  |1500.00            |
+|0              |.01    |5                   |0                  |0                  |
+
+In a real acceptance test suite, we'd probably link to separate pages for different transactions.
+
+Interest is calculated in a number of different ways.
+
+APR corresponds to simple interest (noncompounding).

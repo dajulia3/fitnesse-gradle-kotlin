@@ -1,0 +1,5 @@
+!include .GradleClasspath
+|import |
+|com.djulia.fixtures|
+
+!define COLLAPSE_SETUP {true}

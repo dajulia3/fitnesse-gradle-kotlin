@@ -13,15 +13,15 @@ apply plugin: 'idea'
 dependencies {
     fitnesse 'org.fitnesse:fitnesse:20160618'
     compile("org.jetbrains.kotlin:kotlin-stdlib:${kotlinVersion}")
-    testCompile 'org.fitnesse:fitnesse:20160618'
 //    testCompile 'org.fitnesse:fitnesse:20160618:standalone'
     testCompile 'junit:junit:4.5'
     runtime 'org.fitnesse:fitnesse:20160618:standalone'
+    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 }
 
 task("writeFitNesseClasspath", type: WriteFitNesseClasspath) {
     classpath = project.configurations.fitnesse + configurations.runtime
-    pagePath = project.file("customer-acceptance-tests/FrontPage")
+    pagePath = project.file("FitNesseRoot/GradleClasspath")
 }
 
 project.tasks.getByName("clean").dependsOn("cleanWriteFitNesseClasspath")
@@ -57,15 +57,18 @@ class WriteFitNesseClasspath extends DefaultTask {
     }
 }
 
-task("acceptanceTest", type: JavaExec) {
+task("acceptanceTest", type: Test) {
     dependsOn writeFitNesseClasspath
     dependsOn compileJava
-    classpath configurations.fitnesse
-//    main "fitnesseMain.FitNesseMain"
-//    args "-p", "8000", "-e", "0"
-
 }
 
 sourceSets {
     test.java.srcDirs += 'src/test'
+    main.java.srcDirs += 'src/main/kotlin'
+}
+buildscript {
+    ext.kotlin_version = '1.0.3'
+    repositories {
+        mavenCentral()
+    }
 }
