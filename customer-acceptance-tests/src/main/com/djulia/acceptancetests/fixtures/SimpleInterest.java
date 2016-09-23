@@ -1,4 +1,4 @@
-package com.djulia.fixtures;
+package com.djulia.acceptancetests.fixtures;
 
 import java.math.BigDecimal;
 

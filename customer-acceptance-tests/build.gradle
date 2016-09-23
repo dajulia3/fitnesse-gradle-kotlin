@@ -63,9 +63,10 @@ task("acceptanceTest", type: Test) {
 }
 
 sourceSets {
+    main.java.srcDirs += 'src/main'
     test.java.srcDirs += 'src/test'
-    main.java.srcDirs += 'src/main/kotlin'
 }
+
 buildscript {
     ext.kotlin_version = '1.0.3'
     repositories {
