@@ -1,5 +1,7 @@
+classes/
 .idea
-
+s101plugin.state
 .gradle
 build/
+.DS_Store
 

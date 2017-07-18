@@ -1,4 +1,4 @@
-package com.djulia.banking.transactions
+package com.djulia.banking.transactions.domain
 
 import org.springframework.context.annotation.Bean
 

@@ -11,10 +11,13 @@ targetCompatibility = 1.8
 
 dependencies {
     compile("org.jetbrains.kotlin:kotlin-stdlib:${kotlinVersion}")
+    compile('org.springframework.boot:spring-boot-starter-web')
+
     testCompile('net.wuerl.kotlin:assertj-core-kotlin:0.1.1')
     testCompile('org.assertj:assertj-core:3.5.2')
     testCompile('org.mockito:mockito-all:1.10.19')
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+
 }
 
 

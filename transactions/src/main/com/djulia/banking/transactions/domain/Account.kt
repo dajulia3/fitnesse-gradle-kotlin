@@ -1,8 +1,8 @@
-package com.djulia.banking.transactions
+package com.djulia.banking.transactions.domain
 
 import java.math.BigDecimal
 
-data class Account(val accountNumber: String, val balance: BigDecimal, val status: Account.Status) {
+data class Account(val accountNumber: String, val balance: BigDecimal, val status: Status) {
     fun accountDebitedBy(amountToDebit: BigDecimal): Account {
         return Account(accountNumber, balance.subtract(amountToDebit), status)
     }
